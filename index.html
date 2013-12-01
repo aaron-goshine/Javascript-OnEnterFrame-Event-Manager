@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>WindowOnEnterFrameEvent</title>
+<script type="text/javascript">
+	(function(_import) {
+
+		var _cantext = {
+			enterframeEventQue : {},
+			frameRate : 30,
+			interValHandle : "",
+			frameNumber : 0
+		};
+		var _export = function() {
+		};
+		_export.fn = _export.prototype;
+
+		_export.fn.onEnterFrame = function(handle, func, callback) {
+			var _handle = handle || "default";
+			_cantext.enterframeEventQue[_handle] = func;
+			if (callback)
+				callback();
+			return this;
+		};
+		_export.fn.deleteEnterFrame = function(handle, callback) {
+			var _handle = handle || "default";
+			delete _cantext.enterframeEventQue[_handle];
+			if (callback)
+				callback();
+			return this;
+		};
+
+		_export.fn.setFrameRate = function(framerate) {
+			if(framerate < 1 ){ 
+				framerate = 0; 
+			} else if(framerate > 60) {
+				framerate = 60;
+			}
+			
+			_cantext.frameRate = framerate;
+			this.restartFrame();
+			return this;
+		};
+		_export.fn.getInterval = function() {
+			return 1000 / _cantext.frameRate;
+		};
+		_export.fn.getFrameNumber = function() {
+			return _cantext.frameNumber;
+		};
+		_export.fn.getFrame = function() {
+			return _cantext.frameRate;
+		};
+		_export.fn.restartFrame = function() {
+			clearInterval(_cantext.interValHandle);
+			this.atuoPublish();
+		};
+		_export.fn.updateFrameNumber = function() {
+			_cantext.frameNumber++;
+			if (_cantext.frameNumber > 1000) {
+				console.clear();
+			}
+			return this;
+		};
+		_export.fn.atuoPublish = function() {
+			var that = this;
+			_cantext.interValHandle = setInterval(function() {
+				that.updateFrameNumber();
+
+				for ( var i in _cantext.enterframeEventQue) {
+
+					var enventParam = {
+						frame : that.getFrameNumber(),
+						handle : i,
+						eventTime : new Date().getTime(),
+						source : _cantext.enterframeEventQue[i].toString()
+					};
+
+					_cantext.enterframeEventQue[i](enventParam);
+				}
+
+			}, this.getInterval());
+			return this;
+		};
+
+		_import.prototype.frameEvent = new _export();
+		frameEvent.atuoPublish();
+
+	}(Window));
+</script>
+
+<script type="text/javascript">
+/*
+ * Gio = (Aaron Goshine); 
+ */
+ var callback = function (event){
+	//will be call after event excute;
+	
+};
+var eventHandler= function (event){
+	//process on enterfarme event
+};
+
+ frameEvent.onEnterFrame("handle",eventHandler,callback);
+ //frameEvent.deleteEnterFrame("handle",callback);
+ frameEvent.setFrameRate(30);
+</script>
+</head>
+<body>
+</body>
+</html>
