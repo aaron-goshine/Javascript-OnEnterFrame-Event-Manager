@@ -1,111 +1,161 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>WindowOnEnterFrameEvent</title>
-<script type="text/javascript">
-	(function(_import) {
+    <head>
+	<meta charset="UTF-8" />
+	<title>WindowOnEnterFrameEvent</title>
+	<script type="text/javascript">
+	    (function(_import) {
 
-		var _cantext = {
-			enterframeEventQue : {},
-			frameRate : 30,
-			interValHandle : "",
-			frameNumber : 0
+		var _context = {
+		    enterframeEventQue: {},
+		    frameRate: 30,
+		    interValHandle: "",
+		    frameNumber: 0,
+		    requestAF: function() {
+			return window.requestAnimationFrame ||
+				window.mozRequestAnimationFrame ||
+				window.webkitRequestAnimationFrame ||
+				window.msRequestAnimationFrame;
+		    },
+		    perfTM: function() {
+			var performance = window.performance || {};
+			return performance.now() ||
+				performance.mozNow() ||
+				performance.msNow() ||
+				performance.oNow() ||
+				performance.webkitNow();
+		    }
 		};
 		var _export = function() {
 		};
 		_export.fn = _export.prototype;
 
-		_export.fn.onEnterFrame = function(handle, func, callback) {
-			var _handle = handle || "default";
-			_cantext.enterframeEventQue[_handle] = func;
-			if (callback)
-				callback();
-			return this;
+		_export.fn.onEnterFrame = function(handle, func, callback, params) {
+
+		    var _handle = handle || "default";
+		    _context.enterframeEventQue[_handle] = func;
+
+		    if (callback)
+			callback(params);
+		    return this;
 		};
 		_export.fn.deleteEnterFrame = function(handle, callback) {
-			var _handle = handle || "default";
-			delete _cantext.enterframeEventQue[_handle];
-			if (callback)
-				callback();
-			return this;
+		    var _handle = handle || "default";
+		    delete _context.enterframeEventQue[_handle];
+		    if (callback)
+			callback();
+		    return this;
 		};
 
 		_export.fn.setFrameRate = function(framerate) {
-			if(framerate < 1 ){ 
-				framerate = 0; 
-			} else if(framerate > 60) {
-				framerate = 60;
-			}
-			
-			_cantext.frameRate = framerate;
-			this.restartFrame();
-			return this;
+		    if (framerate < 1) {
+			framerate = 0;
+		    } else if (framerate > 60) {
+			framerate = 60;
+		    }
+
+		    _context.frameRate = framerate;
+		    this.restartFrame();
+		    return this;
 		};
 		_export.fn.getInterval = function() {
-			return 1000 / _cantext.frameRate;
+		    return 1000 / _context.frameRate;
 		};
 		_export.fn.getFrameNumber = function() {
-			return _cantext.frameNumber;
+		    return _context.frameNumber;
 		};
 		_export.fn.getFrame = function() {
-			return _cantext.frameRate;
+		    return _context.frameRate;
 		};
 		_export.fn.restartFrame = function() {
-			clearInterval(_cantext.interValHandle);
-			this.atuoPublish();
+		    clearInterval(_context.interValHandle);
+		    this.atuoPublish();
 		};
 		_export.fn.updateFrameNumber = function() {
-			_cantext.frameNumber++;
-			if (_cantext.frameNumber > 1000) {
-				console.clear();
-			}
-			return this;
+		    _context.frameNumber++;
+		    if (_context.frameNumber > 1000) {
+			console.clear();
+		    }
+		    return this;
 		};
 		_export.fn.atuoPublish = function() {
-			var that = this;
-			_cantext.interValHandle = setInterval(function() {
-				that.updateFrameNumber();
+		    var that = this;
+		    _context.interValHandle = setInterval(function() {
+			that.updateFrameNumber();
 
-				for ( var i in _cantext.enterframeEventQue) {
+			for (var i in _context.enterframeEventQue) {
 
-					var enventParam = {
-						frame : that.getFrameNumber(),
-						handle : i,
-						eventTime : new Date().getTime(),
-						source : _cantext.enterframeEventQue[i].toString()
-					};
-
-					_cantext.enterframeEventQue[i](enventParam);
+			    var enventParam = {
+				frame: that.getFrameNumber(),
+				handle: i,
+				eventTime: new Date().getTime(),
+				readableEventTime: (function() {
+				    var date = new Date();
+				    return  date.getHours() + ":"
+					    + date.getMinutes() + ":"
+					    + date.getSeconds() + ":"
+					    + date.getMilliseconds() + ":"
+					    + _context.perfTM();
+				}()),
+				source: _context.enterframeEventQue[i].toString(),
+				toString: function() {
+				    return "Current frame: " + this.frame + " Timeline: " + this.readableEventTime;
 				}
+			    };
 
-			}, this.getInterval());
-			return this;
+
+			    _context.enterframeEventQue[i](enventParam);
+			}
+
+		    }, this.getInterval());
+		    return this;
 		};
 
 		_import.prototype.frameEvent = new _export();
+		window.requestAnimationFrame = _context.requestAF();
 		frameEvent.atuoPublish();
 
-	}(Window));
-</script>
+	    }(Window));
+	</script>
 
-<script type="text/javascript">
-/*
- * Gio = (Aaron Goshine); 
- */
- var callback = function (event){
-	//will be call after event excute;
-	
-};
-var eventHandler= function (event){
-	//process on enterfarme event
-};
+	<script type="text/javascript">
+	    /*
+	     * Gio = (Aaron Goshine); 
+	     */
+	    var callback = function(event) {
+		//will be call after event excute;
 
- frameEvent.onEnterFrame("handle",eventHandler,callback);
- //frameEvent.deleteEnterFrame("handle",callback);
- frameEvent.setFrameRate(30);
-</script>
-</head>
-<body>
-</body>
+		console.log("call back was called");
+	    };
+	    var eventHandler = function(event) {
+		var console = document.getElementById("console");
+		console.innerHTML = event.toString();
+
+	    };
+
+	    window.onload = function() {
+
+
+		frameEvent.onEnterFrame("handle", eventHandler, callback);
+		frameEvent.setFrameRate(60);
+
+
+
+	    };
+
+
+
+	</script>
+	<style>
+	    #console{
+		font-family: arial;
+		font-size: 20px;
+	    }
+	</style>
+    </head>
+    <body >
+	<div id="console">
+	</div>
+
+    </body>
 </html>
