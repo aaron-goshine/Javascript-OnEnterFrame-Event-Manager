@@ -25,13 +25,11 @@
 		var _export = function() {
 		};
 		_export.fn = _export.prototype;
-
 		_export.fn.frameRate = 30;
 		_export.fn.frameNumber = 0;
 		_export.fn.interValHandle = "";
 		_export.fn.enterframeEventQue = {};
 		_export.fn.onEnterFrame = function(handle, func, callback, params) {
-
 		    var _handle = handle || "default";
 		    this.enterframeEventQue[_handle] = func;
 		    if (callback)
@@ -114,11 +112,14 @@
 		};
 		_export.fn.extend = function(classFunc) {
 		    if (!!(classFunc && classFunc.constructor && classFunc.call && classFunc.apply)) {
-
 			classFunc.prototype = new _export();
+			classFunc.prototype.frameRate = 0;
+			classFunc.prototype.frameNumber = 0;
+			classFunc.prototype.interValHandle = "";
+			classFunc.prototype.enterframeEventQue = {};
 			return this;
 		    } else {
-			throw "you can only extend class";
+			throw "you can only extend classes";
 		    }
 		};
 
@@ -137,16 +138,21 @@
 		console.log("Call back");
 	    };
 	    var eventHandler = function(event) {
-		var windowframe = document.getElementById("windowFrame");
+		var windowframe = document.getElementById("windowFrame12");
 		windowframe.innerHTML = event.toString();
 
 	    };
 
-
-	    var classFuncEventHandler = function(event) {
-		var classFrames = document.getElementById("classFrames");
+	    var classFuncEventHandler_30 = function(event) {
+		var classFrames = document.getElementById("classFrames30");
 		classFrames.innerHTML = event.toString();
 	    };
+	    
+	      var classFuncEventHandler_60 = function(event) {
+		var classFrames = document.getElementById("classFrames60");
+		classFrames.innerHTML = event.toString();
+	    };
+
 
 	    window.onload = function() {
 
@@ -160,20 +166,21 @@
 		 * You can set up a a custom extention
 		 * to add frameEvent to a classFunction
 		 */
-		var Class = function() {
-		    this.frameRate = 0;
-		    this.frameNumber = 0;
-		    this.interValHandle = "";
-		    this.enterframeEventQue = {};
-		};
+		var Class_30 =  new Function();
 		//window will extend your class peacefull
-		window.frameEvent.extend(Class);
-		var instance = new Class();
+		window.frameEvent.extend(Class_30);
+		var instance = new  Class_30();
+		instance.setFrameRate(30);
+		instance.onEnterFrame("handleFrameOnClassFunc_30", classFuncEventHandler_30);
+		//frameEvent.deleteEnterFrame ("handleFrameOnClassFunc_30");
+
+		var Class_60 = new Function();
+		//window will extend your class peacefull
+		window.frameEvent.extend(Class_60);
+		var instance = new Class_60();
 		instance.setFrameRate(60);
-		instance.onEnterFrame("handleFrameOnClassFunc", classFuncEventHandler);
-		//frameEvent.deleteEnterFrame ("handleFrameOnClassFunc");
-
-
+		instance.onEnterFrame("handleFrameOnClassFunc_60", classFuncEventHandler_60);
+		//frameEvent.deleteEnterFrame ("handleFrameOnClassFunc_60");
 
 	    };
 
@@ -192,11 +199,15 @@
     </head>
     <body >
 	<h2> 12 frames per seconds </h2>
-	<div class="console" id="windowFrame">
+	<div class="console" id="windowFrame12">
 	</div>
-	<hr/>
+	<hr>
+	<h2> 30 frames per seconds </h2>
+	<div class ="console" id="classFrames30">
+	</div>
+	<hr>
 	<h2> 60 frames per seconds </h2>
-	<div class ="console" id="classFrames">
+	<div class ="console" id="classFrames60">
 	</div>
 
     </body>
