@@ -5,12 +5,8 @@
 	<title>WindowOnEnterFrameEvent</title>
 	<script type="text/javascript">
 	    (function(_import) {
-
+		"use strict";
 		var _context = {
-		    enterframeEventQue: {},
-		    frameRate: 30,
-		    interValHandle: "",
-		    frameNumber: 0,
 		    requestAF: function() {
 			return window.requestAnimationFrame ||
 				window.mozRequestAnimationFrame ||
@@ -30,18 +26,21 @@
 		};
 		_export.fn = _export.prototype;
 
+		_export.fn.frameRate = 30;
+		_export.fn.frameNumber = 0;
+		_export.fn.interValHandle = "";
+		_export.fn.enterframeEventQue = {};
 		_export.fn.onEnterFrame = function(handle, func, callback, params) {
 
 		    var _handle = handle || "default";
-		    _context.enterframeEventQue[_handle] = func;
-
+		    this.enterframeEventQue[_handle] = func;
 		    if (callback)
 			callback(params);
 		    return this;
 		};
 		_export.fn.deleteEnterFrame = function(handle, callback) {
 		    var _handle = handle || "default";
-		    delete _context.enterframeEventQue[_handle];
+		    delete this.enterframeEventQue[_handle];
 		    if (callback)
 			callback();
 		    return this;
@@ -49,41 +48,44 @@
 
 		_export.fn.setFrameRate = function(framerate) {
 		    if (framerate < 1) {
-			framerate = 0;
+			framerate = 1;
 		    } else if (framerate > 60) {
 			framerate = 60;
 		    }
-
-		    _context.frameRate = framerate;
+		    this.frameRate = framerate;
 		    this.restartFrame();
 		    return this;
 		};
 		_export.fn.getInterval = function() {
-		    return 1000 / _context.frameRate;
+		    var interval = (1000 / this.frameRate);
+		    return interval;
 		};
 		_export.fn.getFrameNumber = function() {
-		    return _context.frameNumber;
+		    return this.frameNumber;
 		};
 		_export.fn.getFrame = function() {
-		    return _context.frameRate;
+		    return this.frameRate;
 		};
 		_export.fn.restartFrame = function() {
-		    clearInterval(_context.interValHandle);
+		    clearInterval(this.interValHandle);
 		    this.atuoPublish();
 		};
 		_export.fn.updateFrameNumber = function() {
-		    _context.frameNumber++;
-		    if (_context.frameNumber > 1000) {
+		    this.frameNumber++;
+		    if (this.frameNumber > 1000) {
 			//console.clear();
 		    }
 		    return this;
 		};
 		_export.fn.atuoPublish = function() {
+
 		    var that = this;
-		    _context.interValHandle = setInterval(function() {
+
+		    this.interValHandle = setInterval(function() {
 			that.updateFrameNumber();
 
-			for (var i in _context.enterframeEventQue) {
+
+			for (var i in that.enterframeEventQue) {
 
 			    var enventParam = {
 				frame: that.getFrameNumber(),
@@ -97,23 +99,32 @@
 					    + date.getMilliseconds() + ":"
 					    + _context.perfTM();
 				}()),
-				source: _context.enterframeEventQue[i].toString(),
+				source: that.enterframeEventQue[i].toString(),
 				toString: function() {
 				    return "Current frame: " + this.frame + " Timeline: " + this.readableEventTime;
 				}
 			    };
 
 
-			    _context.enterframeEventQue[i](enventParam);
+			    that.enterframeEventQue[i](enventParam);
 			}
 
 		    }, this.getInterval());
 		    return this;
 		};
+		_export.fn.extend = function(classFunc) {
+		    if (!!(classFunc && classFunc.constructor && classFunc.call && classFunc.apply)) {
+
+			classFunc.prototype = new _export();
+			return this;
+		    } else {
+			throw "you can only extend class";
+		    }
+		};
 
 		_import.prototype.frameEvent = new _export();
 		window.requestAnimationFrame = _context.requestAF();
-		frameEvent.atuoPublish();
+		window.frameEvent.atuoPublish();
 
 	    }(Window));
 	</script>
@@ -122,33 +133,70 @@
 	    /*
 	     * Gio = (Aaron Goshine); 
 	     */
-	    var callback = function(event) {
-		//will be call after event excute;
-
-		console.log("call back was called");
+	    var callback = function() {
+		console.log("Call back");
 	    };
 	    var eventHandler = function(event) {
-		var console = document.getElementById("console");
-		console.innerHTML = event.toString();
+		var windowframe = document.getElementById("windowFrame");
+		windowframe.innerHTML = event.toString();
 
+	    };
+
+
+	    var classFuncEventHandler = function(event) {
+		var classFrames = document.getElementById("classFrames");
+		classFrames.innerHTML = event.toString();
 	    };
 
 	    window.onload = function() {
 
-		frameEvent.onEnterFrame("handle", eventHandler, callback);
-		frameEvent.setFrameRate(60);
+		// frameEvent can becalled on the window by deafult
+		window.frameEvent.onEnterFrame("handleFrameOnWindow", eventHandler, callback);
+		window.frameEvent.setFrameRate(12);
+		//frameEvent.deleteEnterFrame ("handleFrameOnWindow", callback);
+
+		//Runing at different framrate
+		/*
+		 * You can set up a a custom extention
+		 * to add frameEvent to a classFunction
+		 */
+		var Class = function() {
+		    this.frameRate = 0;
+		    this.frameNumber = 0;
+		    this.interValHandle = "";
+		    this.enterframeEventQue = {};
+		};
+		//window will extend your class peacefull
+		window.frameEvent.extend(Class);
+		var instance = new Class();
+		instance.setFrameRate(60);
+		instance.onEnterFrame("handleFrameOnClassFunc", classFuncEventHandler);
+		//frameEvent.deleteEnterFrame ("handleFrameOnClassFunc");
+
+
 
 	    };
+
 	</script>
 	<style>
-	    #console{
+	    *{
 		font-family: arial;
-		font-size: 20px;
+		color: gray;
+	    }
+	    .console{
+
+		font-size: 24px;
+		margin-bottom: 40px;
 	    }
 	</style>
     </head>
     <body >
-	<div id="console">
+	<h2> 12 frames per seconds </h2>
+	<div class="console" id="windowFrame">
+	</div>
+	<hr/>
+	<h2> 60 frames per seconds </h2>
+	<div class ="console" id="classFrames">
 	</div>
 
     </body>
