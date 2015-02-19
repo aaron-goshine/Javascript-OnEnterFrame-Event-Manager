@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>onEnter Frame</title>
+    <style>
+        * {
+            font-family: arial;
+            color: gray;
+        }
+
+        .console {
+
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            width: 600px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            width: 600px;
+            color: darkseagreen;
+        }
+
+        .recommendation {
+            background-color: pink;
+            display: inline-block;
+            padding: 3px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h2> window.requestAnimationFrame is the most efficient way to do animation in HTML5</h2>
+
+<p>if you do not specify a frame rate or you explicitly set the frame rate to -1 "instance.frameEvent.setFrameRate(-1);"
+    your animation frames will be played to the maximum capabilities of the browser<span class="recommendation">Highly recommended</span>
+</p>
+
+<div class="console" id="requestAnimationFrame">
+</div>
+<hr>
+<h2> 12 frames per seconds </h2>
+
+<p>You can specify frame rate by extending "window.frameEvent.extend(Class_60);" </p>
+
+<div class="console" id="windowFrame12">
+</div>
+<hr>
+<h2> 30 frames per seconds </h2>
+
+<div class="console" id="classFrames30">
+</div>
+<hr>
+<h2> 60 frames per seconds </h2>
+
+<div class="console" id="classFrames60">
+</div>
+<script src="/js/onenterframe.js"></script>
+<script src="/js/index.js"></script>
+</body>
+</html>
